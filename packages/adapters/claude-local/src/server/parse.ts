@@ -185,6 +185,6 @@ export function isClaudeImageProcessingError(parsed: Record<string, unknown>): b
     .filter(Boolean);
 
   return allMessages.some((msg) =>
-    /could not process image|invalid.*image|image.*too large|unsupported.*image/i.test(msg),
+    /could not process image|image processing (failed|error)|image.*too large|unsupported.*image\s*format/i.test(msg),
   );
 }

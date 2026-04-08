@@ -617,16 +617,16 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
 
   try {
     const initial = await runAttempt(sessionId ?? null);
+    const isImageErr = initial.parsed ? isClaudeImageProcessingError(initial.parsed) : false;
+    const isSessionErr = initial.parsed ? isClaudeUnknownSessionError(initial.parsed) : false;
     if (
       sessionId &&
       !initial.proc.timedOut &&
       (initial.proc.exitCode ?? 0) !== 0 &&
       initial.parsed &&
-      (isClaudeUnknownSessionError(initial.parsed) || isClaudeImageProcessingError(initial.parsed))
+      (isSessionErr || isImageErr)
     ) {
-      const reason = isClaudeImageProcessingError(initial.parsed)
-        ? "stale image in session context"
-        : "session unavailable";
+      const reason = isImageErr ? "stale image in session context" : "session unavailable";
       await onLog(
         "stdout",
         `[paperclip] Claude resume session "${sessionId}" failed (${reason}); retrying with a fresh session.\n`,
